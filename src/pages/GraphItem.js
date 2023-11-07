@@ -15,7 +15,8 @@ const GraphItem = () => {
     
     const [apiData, setApiData] = useState([]);
     const [profitData, setProfitData] = useState([])
-const [visitorData, setVisitorData] = useState([])
+    const [visitorData, setVisitorData] = useState([])
+    const [hoveredAreaKey, setHoveredAreaKey] = useState(null);
 
 
         // main graph
@@ -132,37 +133,27 @@ const [visitorData, setVisitorData] = useState([])
 
         
       const CustomTooltip = ({ active, payload }) => {
-        if (active && payload && payload.length) {
-          const currentPayload = payload[0];
-          const { name, expenses, revenue } = currentPayload.payload;
-          return (
-            <div className="custom-tooltip" style={{borderRadius:'5px', background:'#101935', padding:'10px 20px', height:'80px', border:'1px solid #1f294a'}}>
-              <div className='d-flex flex-column' >
+        if (active && payload && payload.length && hoveredAreaKey) {
+            const data = payload.find(p => p.dataKey === hoveredAreaKey);
 
-              <div className='d-flex flex-row align-items-center' >
-                <div className='d-flex flex-column'>
+            if (!data) return null;
 
-               
-                        <h6 style={{color:'#51b4f0', marginBottom:'0px'}}>
-                       $ {` ${expenses}`}
-
+            return (
+                <div className="custom-tooltip" style={{ borderRadius: '5px', background: '#101935', padding: '10px 20px', height: '80px', border: '1px solid #1f294a' }}>
+                    <div className='d-flex flex-column'>
+                        <h6 style={{ color: data.stroke, marginBottom: '0px' }}>
+                            $ {data.value}
                         </h6>
-                        <h6 style={{color:'#6168e8', marginBottom:'0px'}}>
-                       $ {` ${revenue}`}
-
-                        </h6>
-                     </div>
-                        <button type="button" className="butt mx-2 d-flex align-items-center " >24.8% <i className="fa-solid fa-arrow-down fa-rotate-180 mx-1" style={{color: '#18ca74'}}></i> </button>
+                        <p style={{ color: '#475171', textAlign: 'center', }}>
+                            {data.payload.name}
+                        </p>
                     </div>
-
-              <p style={{color:'#475171', textAlign:'center', }}>{` ${name}`}</p>
-              </div>
-            </div>
-          );
+                </div>
+            );
         }
-      
         return null;
-      };
+    };
+            
       
       
       const CustTooltip = ({ active, payload, label }) => {
@@ -269,8 +260,25 @@ const [visitorData, setVisitorData] = useState([])
           <XAxis dataKey="name" stroke='#a9b4dc' axisLine={false}/>
           <YAxis stroke='#a9b4dc' axisLine={false} tickFormatter={(value) => `${value / 1000}K`}   />
           <Tooltip content={<CustomTooltip />}  />
-          <Area type="monotone" dataKey="expenses" stackId="1" stroke="#51b4f0" fill="#152244" />
-          <Area type="monotone" dataKey="revenue" stackId="2" stroke="#6168e8" fill="#1d2655" />
+          <Area
+            type="monotone"
+            dataKey="expenses"
+            stackId="1"
+            stroke="#51b4f0"
+            fill="#152244"
+            onMouseOver={() => setHoveredAreaKey('expenses')}
+            onMouseOut={() => setHoveredAreaKey(null)}
+          />
+          <Area
+            type="monotone"
+            dataKey="revenue"
+            stackId="2"
+            stroke="#6168e8"
+            fill="#1d2655"
+            onMouseOver={() => setHoveredAreaKey('revenue')}
+            onMouseOut={() => setHoveredAreaKey(null)}
+          />
+
           
         </AreaChart>
        
